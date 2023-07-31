@@ -1,19 +1,17 @@
+Set-ExecutionPolicy RemoteSigned -Force
+
 #================================================
 #   [PreOS] Update Module
 #================================================
 Write-Host  -ForegroundColor Cyan "AnyLinQ Interne IT - Reset van Windows"
 Start-Sleep -Seconds 5
 
-Change Display Resolution for Virtual Machine
-if ((Get-MyComputerModel) -match 'Virtual') {
-	Write-Host -ForegroundColor Green "Setting Display Resolution to 1600x"
-	Set-DisRes 1600
-}
+# if ((Get-MyComputerModel) -match 'Virtual') {
+# 	Write-Host -ForegroundColor Green "Setting Display Resolution to 1600x"
+# 	Set-DisRes 1600
+# }
 
-Write-Host -ForegroundColor Green "Updating OSD PowerShell Module"
 Install-Module OSD -Force
-
-Write-Host -ForegroundColor Green "Importing OSD PowerShell Module"
 Import-Module OSD -Force
 
 #=======================================================================
@@ -41,7 +39,7 @@ $OOBEDeployJson = @'
                       "IsPresent":  true
                   },
     "Autopilot":  {
-                      "IsPresent":  false
+                      "IsPresent":  true
                   },
     "RemoveAppx":  [
                     "MicrosoftTeams",
@@ -88,31 +86,27 @@ $OOBEDeployJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.OOBEDeplo
 #================================================
 Write-Host -ForegroundColor Green "Define Computername:"
 $Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
-$TargetComputername = $Serial
 
-$AssignedComputerName = "AQ-LT-$TargetComputername"
+$AssignedComputerName = "AQ-LT-$Serial"
 Write-Host -ForegroundColor Red $AssignedComputerName
 Write-Host ""
 
 Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
 $AutopilotOOBEJson = @"
 {
-    "AssignedComputerName" : "$AssignedComputerName",
-    "AddToGroup":  "AQ-Intune",
-    "Assign":  {
-                   "IsPresent":  true
-               },
-    "Hidden":  [
-                   "AddToGroup",
-                   "AssignedUser",
-                   "PostAction",
-                   "GroupTag",
-                   "Assign"
-               ],
-    "PostAction":  "Quit",
-    "Run":  "NetworkingWireless",
-    "Docs":  "https://autopilotoobe.osdeploy.com/",
-    "Title":  "ITHLP OSDeploy Autopilot Registration"
+    "CloudAssignedTenantDomain": "AnylinQ.com",
+    "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
+    "CloudAssignedAutopilotUpdateTimeout":  1800000,
+    "CloudAssignedAutopilotUpdateDisabled":  1,
+    "CloudAssignedForcedEnrollment":  1,
+    "Version": 2049,
+    "Comment_File": "Profile AQ Laptop Open",
+    "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
+    "CloudAssignedDomainJoinMethod": 0,
+    "CloudAssignedOobeConfig": 1308,
+    "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
+    "CloudAssignedLanguage": "os-default",
+    "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
 }
 "@
 
