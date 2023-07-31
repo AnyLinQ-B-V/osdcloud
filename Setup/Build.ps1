@@ -4,9 +4,9 @@ Install-Module -Name OSD -Scope AllUsers
 Update-Module -name OSD -Force
 import-module -name OSD -Force
 
-New-OSDCloudTemplate -Language en-US -SetInputLocale nl-NL -Verbose
+New-OSDCloudTemplate -Language nl-nl -SetInputLocale nl-nl -Verbose
 $WorkingDir="C:\OSDCloud"
-New-OSDCloud.workspace -WorkspacePath $WorkingDir -Verbose
+New-OSDCloudWorkspace -WorkspacePath $WorkingDir -Verbose
 
 $KeepTheseDirs = @('boot','efi','en-us','sources','fonts','resources')
 Get-ChildItem "$(Get-OSDCloudWorkspace)\Media" | Where {$_.PSIsContainer} | Where {$_.Name -notin $KeepTheseDirs} | Remove-Item -Recurse -Force
