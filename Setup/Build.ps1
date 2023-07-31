@@ -4,7 +4,7 @@ Install-Module -Name OSD -Scope AllUsers
 Update-Module -name OSD -Force
 import-module -name OSD -Force
 
-New-OSDCloudTemplate -Language en-USe -SetInputLocale nl-NL -Verbose
+New-OSDCloudTemplate -Language en-US -SetInputLocale nl-NL -Verbose
 $WorkingDir="C:\OSDCloud"
 New-OSDCloud.workspace -WorkspacePath $WorkingDir -Verbose
 
