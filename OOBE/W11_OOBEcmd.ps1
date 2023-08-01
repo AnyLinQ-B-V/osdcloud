@@ -85,36 +85,36 @@ $OOBEDeployJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.OOBEDeplo
 #================================================
 #  [PostOS] AutopilotOOBE Configuration Staging
 #================================================
-# Write-Host -ForegroundColor Green "Define Computername:"
-# $Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
+Write-Host -ForegroundColor Green "Define Computername:"
+$Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
 
-# $AssignedComputerName = "AQ-LT-$Serial"
-# Write-Host -ForegroundColor Red $AssignedComputerName
-# Write-Host ""
+$AssignedComputerName = "AQ-LT-$Serial"
+Write-Host -ForegroundColor Red $AssignedComputerName
+Write-Host ""
 
-# Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
-# $AutopilotOOBEJson = @"
-# {
-#     "CloudAssignedTenantDomain": "AnylinQ.com",
-#     "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
-#     "CloudAssignedAutopilotUpdateTimeout":  1800000,
-#     "CloudAssignedAutopilotUpdateDisabled":  1,
-#     "CloudAssignedForcedEnrollment":  1,
-#     "Version": 2049,
-#     "Comment_File": "Profile AQ Laptop Open",
-#     "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
-#     "CloudAssignedDomainJoinMethod": 0,
-#     "CloudAssignedOobeConfig": 1308,
-#     "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
-#     "CloudAssignedLanguage": "os-default",
-#     "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
-# }
-# "@
+Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
+$AutopilotOOBEJson = @"
+{
+    "CloudAssignedTenantDomain": "AnylinQ.com",
+    "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
+    "CloudAssignedAutopilotUpdateTimeout":  1800000,
+    "CloudAssignedAutopilotUpdateDisabled":  1,
+    "CloudAssignedForcedEnrollment":  1,
+    "Version": 2049,
+    "Comment_File": "Profile AQ Laptop Open",
+    "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
+    "CloudAssignedDomainJoinMethod": 0,
+    "CloudAssignedOobeConfig": 1308,
+    "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
+    "CloudAssignedLanguage": "os-default",
+    "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
+}
+"@
 
-# If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-#     New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
-# }
-# $AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
+If (!(Test-Path "C:\ProgramData\OSDeploy")) {
+    New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
+}
+$AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
 
 #================================================
 #  [PostOS] AutopilotOOBE CMD Command Line
