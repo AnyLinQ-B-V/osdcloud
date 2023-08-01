@@ -1,5 +1,4 @@
 Set-ExecutionPolicy RemoteSigned -Force
-Set-DisRes 1280
 
 #================================================
 #   [PreOS] Update Module
@@ -7,15 +6,7 @@ Set-DisRes 1280
 Write-Host  -ForegroundColor Cyan "AnyLinQ Interne IT - Reset van Windows"
 Start-Sleep -Seconds 5
 
-# if ((Get-MyComputerModel) -match 'Virtual') {
-# 	Write-Host -ForegroundColor Green "Setting Display Resolution to 1280x"
-#	Set-DisRes 1280
-# }
-
-Install-Module -Name OSD -RequiredVersion 21.4.13.3 -Force
 Import-Module OSD -Force
-# Install-Module AutopilotOOBE -Force
-# Import-Module AutopilotOOBE -Force
 
 #=======================================================================
 #   [OS] Params and Start-OSDCloud
@@ -33,127 +24,107 @@ $Params = @{
 Start-OSDCloud @Params
 
 #================================================
-#  [PostOS] OOBEDeploy Configuration
-#================================================
-Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.OOBEDeploy.json"
-$OOBEDeployJson = @'
-{
-    "AddNetFX3":  {
-                      "IsPresent":  true
-                  },
-    "Autopilot":  {
-                      "IsPresent":  true
-                  },
-    "RemoveAppx":  [
-                    "MicrosoftTeams",
-                    "Microsoft.BingWeather",
-                    "Microsoft.BingNews",
-                    "Microsoft.GamingApp",
-                    "Microsoft.GetHelp",
-                    "Microsoft.Getstarted",
-                    "Microsoft.Messaging",
-                    "Microsoft.Microsoft3DViewer",
-                    "Microsoft.MicrosoftOfficeHub",
-                    "Microsoft.MicrosoftSolitaireCollection",
-                    "Microsoft.MixedReality.Portal",
-                    "Microsoft.MSPaint",
-                    "Microsoft.People",
-                    "Microsoft.SkypeApp",
-                    "Microsoft.StorePurchaseApp",
-                    "Microsoft.Todos",
-                    "Microsoft.Wallet",
-                    "microsoft.windowscommunicationsapps",
-                    "Microsoft.WindowsFeedbackHub",
-                    "Microsoft.WindowsMaps",
-                    "Microsoft.WindowsSoundRecorder",
-                    "Microsoft.Xbox.TCUI",
-                    "Microsoft.XboxApp",
-                    "Microsoft.XboxGameOverlay",
-                    "Microsoft.XboxGamingOverlay",
-                    "Microsoft.XboxIdentityProvider",
-                    "Microsoft.XboxSpeechToTextOverlay",
-                    "Microsoft.YourPhone",
-                    "Microsoft.ZuneMusic",
-                    "Microsoft.ZuneVideo"
-                   ],
-    "UpdateDrivers":  {
-                          "IsPresent":  true
-                      },
-    "UpdateWindows":  {
-                          "IsPresent":  true
-                      }
-}
-'@
-If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-    New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
-}
-$OOBEDeployJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.OOBEDeploy.json" -Encoding ascii -Force
-
-#================================================
 #  [PostOS] AutopilotOOBE Configuration Staging
 #================================================
-# Write-Host -ForegroundColor Green "Define Computername:"
-# $Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
+Install-Module AutopilotOOBE -Force
+Import-Module AutopilotOOBE -Force
 
-# $AssignedComputerName = "AQ-LT-$Serial"
-# Write-Host -ForegroundColor Red $AssignedComputerName
-# Write-Host ""
+$Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
+$TargetComputername = $Serial
+$AssignedComputerName = "AQ-LT-$TargetComputername"
 
-# Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
-# $AutopilotOOBEJson = @"
-# {
-#     "AssignedComputerName" : "$AssignedComputerName",
-#     "AddToGroup":  "AnyLinQ Laptop",
-#     "Hidden":  [
-# #                   "AddToGroup",
-# #                   "PostAction",
-# #                   "GroupTag",
-# #                   "Assign"
-#                ],
-#     "PostAction":  "Quit",
-#     "Run":  "NetworkingWireless",
-#     "Docs":  "https://google.com/",
-#     "Title":  "Autopilot Manual Register"
-# }
-# "@
+$Params = @{
+    Title = 'AnyLinQ Autopilot Registratie'
+    AssignedComputerName = $AssignedComputerName
+    AddToGroup = 'AnyLinQ Laptop'
+    Hidden = 'AssignedUser','PostAction', 'Run', 'Docs'
+    Disabled = 'AddToGroup', 'Assign'
+    Assign = $true
+    Run = 'NetworkingWireless'
+    Docs = 'https://autopilotoobe.osdeploy.com/'
+}
+AutopilotOOBE @Params
 
-# If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-#     New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
-# }
-# $AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
+#================================================
+#  [PostOS] OOBEDeploy Configuration
+#================================================
+utopilotOOBE @Params
+#================================================
+#   WinPE PostOS Sample
+#   OOBEDeploy Offline Staging
+#================================================
+$Params = @{
+    Autopilot = $true
+    RemoveAppx = "CommunicationsApps","OfficeHub","People","Skype","Solitaire","Xbox","ZuneMusic","ZuneVideo","MicrosoftTeams","Microsoft.BingWeather","Microsoft.BingNews","Microsoft.GamingApp","Microsoft.GetHelp","Microsoft.Getstarted","Microsoft.Messaging","Microsoft.Microsoft3DViewer","Microsoft.MicrosoftOfficeHub","Microsoft.MicrosoftSolitaireCollection","Microsoft.MixedReality.Portal","Microsoft.People","Microsoft.SkypeApp","Microsoft.StorePurchaseApp","Microsoft.Todos","Microsoft.Wallet","microsoft.windowscommunicationsapps","Microsoft.WindowsFeedbackHub","Microsoft.WindowsMaps","Microsoft.WindowsSoundRecorder","Microsoft.Xbox.TCUI","Microsoft.XboxApp","Microsoft.XboxGameOverlay","Microsoft.XboxGamingOverlay","Microsoft.XboxIdentityProvider","Microsoft.XboxSpeechToTextOverlay","Microsoft.ZuneMusic","Microsoft.ZuneVideo"
+    SetEdition = 'Enterprise'
+    UpdateDrivers = $true
+    UpdateWindows = $true
+}
+Start-OOBEDeploy @Params
 
 #================================================
 #  [PostOS] AutopilotOOBE CMD Command Line
 #================================================
-Write-Host -ForegroundColor Green "Create C:\Windows\System32\OOBE.cmd"
-$OOBECMD = @'
+$SetCommand = @'
+@echo off
+
+:: Set the PowerShell Execution Policy
 PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
-Set Path = %PATH%;C:\Program Files\WindowsPowerShell\Scripts
-# Start /Wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
-Start /Wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
-# Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/AP-Prereq.ps1
-# Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/Start-AutopilotOOBE.ps1
-# Start /Wait PowerShell -NoL -C Start-AutopilotOOBE
-Start /Wait PowerShell -NoL -C Start-OOBEDeploy
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/TPM.ps1
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/CleanUp.ps1
-Start /Wait PowerShell -NoL -C Restart-Computer -Force
+
+:: Add PowerShell Scripts to the Path
+set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
+
+:: Open and Minimize a PowerShell instance just in case
+start PowerShell -NoL -W Mi
+
+:: Install the latest OSD Module
+start "Install-Module OSD" /wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
+
+:: Start-OOBEDeploy
+:: There are multiple example lines. Make sure only one is uncommented
+:: The next line assumes that you have a configuration saved in C:\ProgramData\OSDeploy\OSDeploy.OOBEDeploy.json
+start "Start-OOBEDeploy" PowerShell -NoL -C Start-OOBEDeploy
+:: The next line assumes that you do not have a configuration saved in or want to ensure that these are applied
+REM start "Start-OOBEDeploy" PowerShell -NoL -C Start-OOBEDeploy -AddNetFX3 -UpdateDrivers -UpdateWindows
+
+exit
 '@
-$OOBECMD | Out-File -FilePath 'C:\Windows\System32\OOBE.cmd' -Encoding ascii -Force
+$SetCommand | Out-File -FilePath "C:\Windows\OOBEDeploy.cmd" -Encoding ascii -Force
 
 #================================================
 #  [PostOS] SetupComplete CMD Command Line
 #================================================
-Write-Host -ForegroundColor Green "Create C:\Windows\Setup\Scripts\SetupComplete.cmd"
-$SetupCompleteCMD = @'
-powershell.exe -Command Set-ExecutionPolicy RemoteSigned -Force
-powershell.exe -Command "& {IEX (IRM https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/oobetasks.ps1)}"
+$SetCommand = @'
+@echo off
+
+:: Set the PowerShell Execution Policy
+PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
+
+:: Add PowerShell Scripts to the Path
+set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
+
+:: Open and Minimize a PowerShell instance just in case
+start PowerShell -NoL -W Mi
+
+:: Install the latest AutopilotOOBE Module
+start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
+
+:: Start-AutopilotOOBE
+:: There are multiple example lines. Make sure only one is uncommented
+:: The next line assumes that you have a configuration saved in C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json
+start "Start-AutopilotOOBE" PowerShell -NoL -C Start-AutopilotOOBE
+:: The next line is how you would apply a CustomProfile
+REM start "Start-AutopilotOOBE" PowerShell -NoL -C Start-AutopilotOOBE -CustomProfile OSDeploy
+:: The next line is how you would configure everything from the command line
+REM start "Start-AutopilotOOBE" PowerShell -NoL -C Start-AutopilotOOBE -Title 'OSDeploy Autopilot Registration' -GroupTag Enterprise -GroupTagOptions Development,Enterprise -Assign
+
+exit
 '@
-$SetupCompleteCMD | Out-File -FilePath 'C:\Windows\Setup\Scripts\SetupComplete.cmd' -Encoding ascii -Force
+$SetCommand | Out-File -FilePath "C:\Windows\Autopilot.cmd" -Encoding ascii -Force
 
 #=======================================================================
 #   Restart-Computer
 #=======================================================================
 Write-Host  -ForegroundColor Cyan "Herstart in 20 seconden!"
 Start-Sleep -Seconds 20
-wpeutil reboot
+Restart-Computer
