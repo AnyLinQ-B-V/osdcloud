@@ -42,7 +42,7 @@ $AutopilotOOBEJson = @"
     "Disabled": [
         "AddToGroup",
         "Assign"
-    ]
+    ],
     "Hidden": [
         "AssignedUser",
         "PostAction",
