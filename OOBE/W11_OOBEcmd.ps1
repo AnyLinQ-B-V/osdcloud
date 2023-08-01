@@ -102,15 +102,11 @@ $AutopilotOOBEJson = @"
 {
     "AssignedComputerName" : "$AssignedComputerName",
     "AddToGroup":  "AnyLinQ Laptop",
-    "Assign":  {
-                   "IsPresent":  true
-               },
     "Hidden":  [
-                   "AddToGroup",
-                   "AssignedUser",
-                   "PostAction",
-                   "GroupTag",
-                   "Assign"
+#                   "AddToGroup",
+#                   "PostAction",
+#                   "GroupTag",
+#                   "Assign"
                ],
     "PostAction":  "Quit",
     "Run":  "NetworkingWireless",
