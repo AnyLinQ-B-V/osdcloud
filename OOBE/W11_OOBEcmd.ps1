@@ -38,7 +38,7 @@ $AutopilotOOBEJson = @"
         "IsPresent": true
     },
     "AssignedComputerName": "$AssignedComputerName",
-    "AddToGroup": "AnyLinQ Laptop",
+    "AddToGroup": "SecGroup - AnyLinQ Laptop Test",
     "Disabled": [
         "AddToGroup",
         "Assign"
