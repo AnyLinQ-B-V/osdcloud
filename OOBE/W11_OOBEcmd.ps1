@@ -25,7 +25,7 @@ Start-OSDCloud @Params
 #================================================
 #  [PostOS] AutopilotOOBE Configuration Staging
 #================================================
-Install-Module AutopilotOOBE -Force
+Install-Module AutopilotOOBE -Force -SkipPublisherCheck
 Import-Module AutopilotOOBE -Force
 
 $Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
