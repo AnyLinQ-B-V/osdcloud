@@ -50,17 +50,22 @@ $OOBEDeployJson = @'
                     "Microsoft.GetHelp",
                     "Microsoft.Getstarted",
                     "Microsoft.Messaging",
+                    "Microsoft.Microsoft3DViewer",
                     "Microsoft.MicrosoftOfficeHub",
                     "Microsoft.MicrosoftSolitaireCollection",
+                    "Microsoft.MixedReality.Portal",
                     "Microsoft.MSPaint",
                     "Microsoft.People",
+                    "Microsoft.SkypeApp",
                     "Microsoft.StorePurchaseApp",
                     "Microsoft.Todos",
+                    "Microsoft.Wallet",
                     "microsoft.windowscommunicationsapps",
                     "Microsoft.WindowsFeedbackHub",
                     "Microsoft.WindowsMaps",
                     "Microsoft.WindowsSoundRecorder",
                     "Microsoft.Xbox.TCUI",
+                    "Microsoft.XboxApp",
                     "Microsoft.XboxGameOverlay",
                     "Microsoft.XboxGamingOverlay",
                     "Microsoft.XboxIdentityProvider",
@@ -95,19 +100,22 @@ Write-Host ""
 Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
 $AutopilotOOBEJson = @"
 {
-    "CloudAssignedTenantDomain": "AnylinQ.com",
-    "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
-    "CloudAssignedAutopilotUpdateTimeout":  1800000,
-    "CloudAssignedAutopilotUpdateDisabled":  1,
-    "CloudAssignedForcedEnrollment":  1,
-    "Version": 2049,
-    "Comment_File": "Profile AQ Laptop Open",
-    "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
-    "CloudAssignedDomainJoinMethod": 0,
-    "CloudAssignedOobeConfig": 1308,
-    "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
-    "CloudAssignedLanguage": "os-default",
-    "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
+    "AssignedComputerName" : "$AssignedComputerName",
+    "AddToGroup":  "AnyLinQ Laptop",
+    "Assign":  {
+                   "IsPresent":  true
+               },
+    "Hidden":  [
+                   "AddToGroup",
+                   "AssignedUser",
+                   "PostAction",
+                   "GroupTag",
+                   "Assign"
+               ],
+    "PostAction":  "Quit",
+    "Run":  "NetworkingWireless",
+    "Docs":  "https://google.com/",
+    "Title":  "Autopilot Manual Register"
 }
 "@
 
