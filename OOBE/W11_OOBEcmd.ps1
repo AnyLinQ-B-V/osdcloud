@@ -6,13 +6,14 @@ Set-ExecutionPolicy RemoteSigned -Force
 Write-Host  -ForegroundColor Cyan "AnyLinQ Interne IT - Reset van Windows"
 Start-Sleep -Seconds 5
 
-# if ((Get-MyComputerModel) -match 'Virtual') {
-# 	Write-Host -ForegroundColor Green "Setting Display Resolution to 1600x"
-# 	Set-DisRes 1600
-# }
+if ((Get-MyComputerModel) -match 'Virtual') {
+	Write-Host -ForegroundColor Green "Setting Display Resolution to 1600x"
+	Set-DisRes 1600
+}
 
-Install-Module OSD -Force
 Import-Module OSD -Force
+Install-Module AutopilotOOBE -Force
+Import-Module AutopilotOOBE -Force
 
 #=======================================================================
 #   [OS] Params and Start-OSDCloud
@@ -84,36 +85,36 @@ $OOBEDeployJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.OOBEDeplo
 #================================================
 #  [PostOS] AutopilotOOBE Configuration Staging
 #================================================
-Write-Host -ForegroundColor Green "Define Computername:"
-$Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
+# Write-Host -ForegroundColor Green "Define Computername:"
+# $Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
 
-$AssignedComputerName = "AQ-LT-$Serial"
-Write-Host -ForegroundColor Red $AssignedComputerName
-Write-Host ""
+# $AssignedComputerName = "AQ-LT-$Serial"
+# Write-Host -ForegroundColor Red $AssignedComputerName
+# Write-Host ""
 
-Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
-$AutopilotOOBEJson = @"
-{
-    "CloudAssignedTenantDomain": "AnylinQ.com",
-    "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
-    "CloudAssignedAutopilotUpdateTimeout":  1800000,
-    "CloudAssignedAutopilotUpdateDisabled":  1,
-    "CloudAssignedForcedEnrollment":  1,
-    "Version": 2049,
-    "Comment_File": "Profile AQ Laptop Open",
-    "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
-    "CloudAssignedDomainJoinMethod": 0,
-    "CloudAssignedOobeConfig": 1308,
-    "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
-    "CloudAssignedLanguage": "os-default",
-    "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
-}
-"@
+# Write-Host -ForegroundColor Green "Create C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json"
+# $AutopilotOOBEJson = @"
+# {
+#     "CloudAssignedTenantDomain": "AnylinQ.com",
+#     "CloudAssignedTenantId": "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
+#     "CloudAssignedAutopilotUpdateTimeout":  1800000,
+#     "CloudAssignedAutopilotUpdateDisabled":  1,
+#     "CloudAssignedForcedEnrollment":  1,
+#     "Version": 2049,
+#     "Comment_File": "Profile AQ Laptop Open",
+#     "CloudAssignedAadServerData": "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"CloudAssignedTenantDomain\":\"AnylinQ.com\",\"ForcedEnrollment\":1}}",
+#     "CloudAssignedDomainJoinMethod": 0,
+#     "CloudAssignedOobeConfig": 1308,
+#     "ZtdCorrelationId": "6f6b5bc5-e4f7-415e-9090-6c5ef70f82db",
+#     "CloudAssignedLanguage": "os-default",
+#     "CloudAssignedDeviceName": "AQ-LT-%SERIAL%"
+# }
+# "@
 
-If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-    New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
-}
-$AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
+# If (!(Test-Path "C:\ProgramData\OSDeploy")) {
+#     New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
+# }
+# $AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
 
 #================================================
 #  [PostOS] AutopilotOOBE CMD Command Line
@@ -126,6 +127,7 @@ Start /Wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
 Start /Wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/AP-Prereq.ps1
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/Start-AutopilotOOBE.ps1
+Start /Wait PowerShell -NoL -C Start-AutopilotOOBE
 Start /Wait PowerShell -NoL -C Start-OOBEDeploy
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/TPM.ps1
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/CleanUp.ps1
@@ -139,7 +141,7 @@ $OOBECMD | Out-File -FilePath 'C:\Windows\System32\OOBE.cmd' -Encoding ascii -Fo
 Write-Host -ForegroundColor Green "Create C:\Windows\Setup\Scripts\SetupComplete.cmd"
 $SetupCompleteCMD = @'
 powershell.exe -Command Set-ExecutionPolicy RemoteSigned -Force
-powershell.exe -Command "& {IEX (IRM https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/OOBE/main/oobetasks.ps1)}"
+powershell.exe -Command "& {IEX (IRM https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/oobetasks.ps1)}"
 '@
 $SetupCompleteCMD | Out-File -FilePath 'C:\Windows\Setup\Scripts\SetupComplete.cmd' -Encoding ascii -Force
 

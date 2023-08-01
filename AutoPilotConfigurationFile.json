@@ -1,0 +1,15 @@
+{
+    "CloudAssignedDomainJoinMethod":  0,
+    "CloudAssignedDeviceName":  "AQ-LT-%SERIAL%",
+    "CloudAssignedAutopilotUpdateTimeout":  1800000,
+    "CloudAssignedForcedEnrollment":  1,
+    "Version":  2049,
+    "CloudAssignedTenantId":  "c94d8e55-b7eb-455c-8cf7-ecaadd84ae70",
+    "CloudAssignedAutopilotUpdateDisabled":  1,
+    "ZtdCorrelationId":  "d6648471-dcc2-40c7-bd3c-0bdbb68c7f8b",
+    "Comment_File":  "Profile AnyLinQ Laptop",
+    "CloudAssignedAadServerData":  "{\"ZeroTouchConfig\":{\"CloudAssignedTenantUpn\":\"\",\"ForcedEnrollment\":1,\"CloudAssignedTenantDomain\":\"AnylinQ.com\"}}",
+    "CloudAssignedOobeConfig":  1406,
+    "CloudAssignedTenantDomain":  "AnylinQ.com",
+    "CloudAssignedLanguage":  "os-default"
+}
