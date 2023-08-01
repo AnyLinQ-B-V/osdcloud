@@ -127,7 +127,7 @@ PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
 :: Add PowerShell Scripts to the Path
 set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
 
-Start /Wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
+Start /Wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose -SkipPublisherCheck
 Start /Wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/AP-Prereq.ps1
 Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/Start-AutopilotOOBE.ps1
