@@ -7,8 +7,8 @@ Write-Host  -ForegroundColor Cyan "AnyLinQ Interne IT - Reset van Windows"
 Start-Sleep -Seconds 5
 
 if ((Get-MyComputerModel) -match 'Virtual') {
-	Write-Host -ForegroundColor Green "Setting Display Resolution to 1600x"
-	Set-DisRes 1600
+	Write-Host -ForegroundColor Green "Setting Display Resolution to 1280x"
+	Set-DisRes 1280
 }
 
 Import-Module OSD -Force

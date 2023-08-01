@@ -11,10 +11,6 @@ New-OSDCloudWorkspace -WorkspacePath $WorkingDir -Verbose
 
 New-Item -ItemType Directory $WorkingDir\Media\OSDCloud\Automate
 Copy-Item .\AutoPilotConfigurationFile.json $WorkingDir\Media\OSDCloud\Automate 
-#$KeepTheseDirs = @('boot','efi','en-us','sources','fonts','resources')
-#Get-ChildItem "$(Get-OSDCloudWorkspace)\Media" | Where {$_.PSIsContainer} | Where {$_.Name -notin $KeepTheseDirs} | Remove-Item -Recurse -Force
-#Get-ChildItem "$(Get-OSDCloudWorkspace)\Media\Boot" | Where {$_.PSIsContainer} | Where {$_.Name -notin $KeepTheseDirs} | Remove-Item -Recurse -Force
-#Get-ChildItem "$(Get-OSDCloudWorkspace)\Media\EFI\Microsoft\Boot" | Where {$_.PSIsContainer} | Where {$_.Name -notin $KeepTheseDirs} | Remove-Item -Recurse -Force
 
 Invoke-WebRequest https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/Media/wallpaper.jpg -OutFile $WorkingDir\Media\wallpaper.jpg
 
