@@ -1,8 +1,8 @@
 Set-ExecutionPolicy RemoteSigned -Force
-Install-Module AzureAD -Force -Verbose
-Install-Module WindowsAutopilotIntune -Force -Verbose
-Install-Module Microsoft.Graph.Intune -Force -Verbose
-Install-Module Microsoft.Graph.Identity.DirectoryManagement -Force -Verbose
+Install-Module AzureAD -SkipPublisherCheck -Force -Verbose
+Install-Module WindowsAutopilotIntune -SkipPublisherCheck -Force -Verbose
+Install-Module Microsoft.Graph.Intune -SkipPublisherCheck -Force -Verbose
+Install-Module Microsoft.Graph.Identity.DirectoryManagement -SkipPublisherCheck -Force -Verbose
 
 Connect-MSGraph
 
