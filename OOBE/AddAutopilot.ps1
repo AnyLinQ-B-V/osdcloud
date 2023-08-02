@@ -1,7 +1,8 @@
-Install-Module AzureAD -Force
-Install-Module WindowsAutopilotIntune -Force
-Install-Module Microsoft.Graph.Intune -Force
-Install-Module Microsoft.Graph.Identity.DirectoryManagement -Force
+Set-ExecutionPolicy RemoteSigned -Force
+Install-Module AzureAD -Force -Verbose
+Install-Module WindowsAutopilotIntune -Force -Verbose
+Install-Module Microsoft.Graph.Intune -Force -Verbose
+Install-Module Microsoft.Graph.Identity.DirectoryManagement -Force -Verbose
 
 Connect-MSGraph
 
