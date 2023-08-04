@@ -160,7 +160,7 @@ if ($WindowsPhase -eq 'Windows') {
     osdcloud-InstallPackageManagement
     osdcloud-InstallModuleKeyVault
     osdcloud-InstallPowerShellModule -Name OSD
-    osdcloud-InstallPowerShellModule -Name 'AzureAD
+    osdcloud-InstallPowerShellModule -Name 'AzureAD'
 
     osdcloud-RemoveAppx -Basic
     osdcloud-UpdateDefenderStack
