@@ -9,5 +9,5 @@ Write-Host 'Opening Login Window after the installation was successfull:'`n
 Get-WindowsAutopilotInfo.ps1 -online
          
 Write-Host 'Everything completed. Rebooting now ...'`n
-Start-Sleep -s 2
-Restart-Computer
+#Start-Sleep -s 2
+#Restart-Computer
