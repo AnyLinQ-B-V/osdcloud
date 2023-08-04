@@ -1,172 +1,181 @@
-Set-ExecutionPolicy RemoteSigned -Force
+<#PSScriptInfo
+.VERSION 22.9.13.1
+.GUID 57f30acf-8336-4519-9971-1d71d261f197
+.AUTHOR David Segura @SeguraOSD
+.COMPANYNAME osdcloud.com
+.COPYRIGHT (c) 2022 David Segura osdcloud.com. All rights reserved.
+.TAGS OSDeploy OSDCloud WinPE OOBE Windows AutoPilot
+.LICENSEURI 
+.PROJECTURI https://github.com/OSDeploy/OSD
+.ICONURI 
+.EXTERNALMODULEDEPENDENCIES 
+.REQUIREDSCRIPTS 
+.EXTERNALSCRIPTDEPENDENCIES 
+.RELEASENOTES
+Script should be executed in a Command Prompt using the following command
+powershell Invoke-Expression -Command (Invoke-RestMethod -Uri go.osdcloud.com/enterprise)
+This is abbreviated as
+powershell iex(irm go.osdcloud.com/enterprise)
+#>
+<#
+.SYNOPSIS
+    PSCloudScript at go.osdcloud.com/enterprise
+.DESCRIPTION
+    PSCloudScript at go.osdcloud.com/enterprise
+.NOTES
+    Version 22.9.13.1
+.LINK
+    https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/tasksequences/enterprise.ps1
+.EXAMPLE
+    powershell iex (irm go.osdcloud.com/enterprise)
+#>
+[CmdletBinding()]
+param()
+#=================================================
+#Script Information
+$ScriptName = 'AnyLinQ Windows Installer'
+$ScriptVersion = '1.2'
+#=================================================
 
-#================================================
-#   [PreOS] Update Module
-#================================================
-Write-Host  -ForegroundColor Cyan "AnyLinQ Interne IT - Reset van Windows"
-Start-Sleep -Seconds 5
+#region Initialize
+#Start the Transcript
+$Transcript = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-OSDCloud.log"
+$null = Start-Transcript -Path (Join-Path "$env:SystemRoot\Temp" $Transcript) -ErrorAction Ignore
 
-Import-Module OSD -Force
-
-#=======================================================================
-#   [OS] Params and Start-OSDCloud
-#=======================================================================
-$Params = @{
-    OSVersion = "Windows 11"
-    OSBuild = "22H2"
-    OSEdition = "Pro"
-    OSLanguage = "en-us"
-    OSLicense = "Volume"
-    ZTI = $true
-    Firmware = $false
+#Determine the proper Windows environment
+if ($env:SystemDrive -eq 'X:') {$WindowsPhase = 'WinPE'}
+else {
+    $ImageState = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\State' -ErrorAction Ignore).ImageState
+    if ($env:UserName -eq 'defaultuser0') {$WindowsPhase = 'OOBE'}
+    elseif ($ImageState -eq 'IMAGE_STATE_SPECIALIZE_RESEAL_TO_OOBE') {$WindowsPhase = 'Specialize'}
+    elseif ($ImageState -eq 'IMAGE_STATE_SPECIALIZE_RESEAL_TO_AUDIT') {$WindowsPhase = 'AuditMode'}
+    else {$WindowsPhase = 'Windows'}
 }
-Start-OSDCloud @Params
 
-#================================================
-#  [PostOS] AutopilotOOBE Configuration Staging
-#================================================
-Install-Module AutopilotOOBE -Force -SkipPublisherCheck
-Import-Module AutopilotOOBE -Force
+#Finish initialization
+Write-Host -ForegroundColor DarkGray "$ScriptName $ScriptVersion $WindowsPhase"
 
-$Serial = Get-WmiObject Win32_bios | Select-Object -ExpandProperty SerialNumber
-$TargetComputername = $Serial
-$AssignedComputerName = "AQ-LT-$TargetComputername"
+#Load OSDCloud Functions
+Invoke-Expression -Command (Invoke-RestMethod -Uri functions.osdcloud.com)
 
-$AutopilotOOBEJson = @"
-{
-    "Assign":  {
-        "IsPresent": true
-    },
-    "AssignedComputerName": "$AssignedComputerName",
-    "AddToGroup": "SecGroup - AnyLinQ Laptop Test",
-    "Disabled": [
-        "AddToGroup",
-        "Assign"
-    ],
-    "Hidden": [
-        "AssignedUser",
-        "PostAction",
-        "Run",
-        "Docs"
-    ],
-    "PostAction": "Quit",
-    "Title": "AnyLinQ Autopilot Registratie"
+if ($Manufacturer -match "Dell"){
+    $Manufacturer = "Dell"
+    $DellEnterprise = Test-DCUSupport
 }
-"@
 
-If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-    New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
+if ($DellEnterprise -eq $true) {
+    Write-Host -ForegroundColor Green "Dell System Supports Dell Command Update"
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/devicesdell.psm1')
 }
-$AutopilotOOBEJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.AutopilotOOBE.json" -Encoding ascii -Force
 
-#================================================
-#  [PostOS] OOBEDeploy Configuration
-#================================================
-$OOBEDeployJson = @'
-{
-    "AddNetFX3":  {
-        "IsPresent":  true
-    },
-    "Autopilot":  {
-        "IsPresent":  true
-    },
-    "RemoveAppx":  [
-        "MicrosoftTeams",
-        "Microsoft.BingWeather",
-        "Microsoft.BingNews",
-        "Microsoft.GamingApp",
-        "Microsoft.GetHelp",
-        "Microsoft.Getstarted",
-        "Microsoft.Messaging",
-        "Microsoft.Microsoft3DViewer",
-        "Microsoft.MicrosoftOfficeHub",
-        "Microsoft.MicrosoftSolitaireCollection",
-        "Microsoft.MixedReality.Portal",
-        "Microsoft.MSPaint",
-        "Microsoft.People",
-        "Microsoft.SkypeApp",
-        "Microsoft.StorePurchaseApp",
-        "Microsoft.Todos",
-        "Microsoft.Wallet",
-        "microsoft.windowscommunicationsapps",
-        "Microsoft.WindowsFeedbackHub",
-        "Microsoft.WindowsMaps",
-        "Microsoft.WindowsSoundRecorder",
-        "Microsoft.Xbox.TCUI",
-        "Microsoft.XboxApp",
-        "Microsoft.XboxGameOverlay",
-        "Microsoft.XboxGamingOverlay",
-        "Microsoft.XboxIdentityProvider",
-        "Microsoft.XboxSpeechToTextOverlay",
-        "Microsoft.YourPhone",
-        "Microsoft.ZuneMusic",
-        "Microsoft.ZuneVideo"
-    ],
-    "UpdateDrivers":  {
-        "IsPresent":  true
-    },
-    "UpdateWindows":  {
-        "IsPresent":  true
+#endregion
+#=================================================
+#region WinPE
+if ($WindowsPhase -eq 'WinPE') {
+
+    #Process OSDCloud startup and load Azure KeyVault dependencies
+    osdcloud-StartWinPE -OSDCloud -KeyVault
+
+    $null = Stop-Transcript -ErrorAction Ignore
+
+    #Start OSDCloud and pass all the parameters except the Language to allow for prompting
+    Start-OSDCloud -OSVersion 'Windows 11' -OSBuild 22H2 -OSEdition Enterprise -OSActivation Volume -SkipAutopilot -SkipODT -Restart
+}
+#endregion
+#=================================================
+#region Specialize
+if ($WindowsPhase -eq 'Specialize') {
+    $null = Stop-Transcript -ErrorAction Ignore
+}
+#endregion
+#=================================================
+#region AuditMode
+if ($WindowsPhase -eq 'AuditMode') {
+    $null = Stop-Transcript -ErrorAction Ignore
+}
+#endregion
+#=================================================
+#region OOBE
+if ($WindowsPhase -eq 'OOBE') {
+
+    #Load everything needed to run AutoPilot and Azure KeyVault
+    osdcloud-StartOOBE -Display -Language -DateTime -Autopilot -KeyVault
+
+    #Get Autopilot information from the device
+    $TestAutopilotProfile = osdcloud-TestAutopilotProfile
+
+    #If the device has an Autopilot Profile
+    if ($TestAutopilotProfile -eq $true) {
+        #osdcloud-ShowAutopilotProfile
     }
+    #If not, need to register the device using the Enterprise GroupTag and Assign it
+    elseif ($TestAutopilotProfile -eq $false) {
+        $AutopilotRegisterCommand = 'Get-WindowsAutopilotInfo -Online -GroupTag Enterprise -Assign'
+        $AutopilotRegisterProcess = osdcloud-AutopilotRegisterCommand -Command $AutopilotRegisterCommand;Start-Sleep -Seconds 30
+    }
+    #Or maybe we just can't figure it out
+    else {
+        Write-Warning 'Unable to determine if device is Autopilot registered'
+    }
+    osdcloud-RemoveAppx -Basic
+    #osdcloud-Rsat -Basic
+    osdcloud-NetFX
+    osdcloud-UpdateDrivers
+    osdcloud-UpdateWindows
+    osdcloud-UpdateDefender
+    if ($AutopilotRegisterProcess) {
+        Write-Host -ForegroundColor Cyan 'Waiting for Autopilot Registration to complete'
+        #$AutopilotRegisterProcess.WaitForExit()
+        if (Get-Process -Id $AutopilotRegisterProcess.Id -ErrorAction Ignore) {
+            Wait-Process -Id $AutopilotRegisterProcess.Id
+        }
+    }
+    
+    if ($DellEnterprise -eq $true) {
+        Write-Host -ForegroundColor Green "[+] Installing Dell Command Update"
+        osdcloud-InstallDCU
+        Write-Host -ForegroundColor Green "[+] Running Dell Command Update (Clean Image)"
+        osdcloud-RunDCU -UpdateType CleanImage
+        Write-Host -ForegroundColor Green "[+] Setting Dell Command Update to Auto Update"
+        osdcloud-DCUAutoUpdate
+        osdcloud-StartOOBE -Display -Language -DateTime -Autopilot -KeyVault
+    }
+    
+    $null = Stop-Transcript -ErrorAction Ignore
+    osdcloud-RestartComputer
 }
-'@
-If (!(Test-Path "C:\ProgramData\OSDeploy")) {
-    New-Item "C:\ProgramData\OSDeploy" -ItemType Directory -Force | Out-Null
+#endregion
+#=================================================
+#region Windows
+if ($WindowsPhase -eq 'Windows') {
+
+    #Load OSD and Azure stuff
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/_oobe.psm1')
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/_anywhere.psm1')
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/_oobewin.psm1')
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/autopilot.psm1')
+    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/defender.psm1')
+
+    osdcloud-SetExecutionPolicy
+    osdcloud-InstallPackageManagement
+    osdcloud-InstallModuleKeyVault
+    osdcloud-InstallPowerShellModule -Name OSD
+    osdcloud-InstallPowerShellModule -Name 'AzureAD
+
+    osdcloud-RemoveAppx -Basic
+    osdcloud-UpdateDefenderStack
+    osdcloud-NetFX
+
+    if ($DellEnterprise -eq $true) {
+        Write-Host -ForegroundColor Green "[+] Installing Dell Command Update"
+        osdcloud-InstallDCU
+        Write-Host -ForegroundColor Green "[+] Running Dell Command Update (Clean Image)"
+        osdcloud-RunDCU -UpdateType CleanImage
+        Write-Host -ForegroundColor Green "[+] Setting Dell Command Update to Auto Update"
+        osdcloud-DCUAutoUpdate
+    }
+    
+    $null = Stop-Transcript -ErrorAction Ignore
 }
-$OOBEDeployJson | Out-File -FilePath "C:\ProgramData\OSDeploy\OSDeploy.OOBEDeploy.json" -Encoding ascii -Force
-
-#================================================
-#  [PostOS] AutopilotOOBE CMD Command Line
-#================================================
-$OOBECMD = @'
-@echo off
-
-:: Set the PowerShell Execution Policy
-PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
-
-:: Add PowerShell Scripts to the Path
-set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
-
-Start /Wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose -SkipPublisherCheck
-Start /Wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/AP-Prereq.ps1
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/Start-AutopilotOOBE.ps1
-Start /Wait PowerShell -NoL -C Start-AutopilotOOBE
-Start /Wait PowerShell -NoL -C Start-OOBEDeploy
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/TPM.ps1
-Start /Wait PowerShell -NoL -C Invoke-WebPSScript https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/CleanUp.ps1
-Start /Wait PowerShell -NoL -C Restart-Computer -Force
-'@
-$OOBECMD | Out-File -FilePath 'C:\Windows\System32\OOBE.cmd' -Encoding ascii -Force
-
-#================================================
-#  [PostOS] SetupComplete CMD Command Line
-#================================================
-$SetupCompleteCMD = @'
-@echo off
-
-:: Set the PowerShell Execution Policy
-PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
-
-:: Add PowerShell Scripts to the Path
-set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
-
-:: Open and Minimize a PowerShell instance just in case
-start PowerShell -NoL -W Mi
-
-:: Install the latest AutopilotOOBE Module
-start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
-
-:: Start-AutopilotOOBE
-powershell.exe -Command "& {IEX (IRM https://raw.githubusercontent.com/AnyLinQ-B-V/osdcloud/main/OOBE/oobetasks.ps1)}"
-
-exit
-'@
-$SetupCompleteCMD | Out-File -FilePath 'C:\Windows\Setup\Scripts\SetupComplete.cmd' -Encoding ascii -Force
-
-#=======================================================================
-#   Restart-Computer
-#=======================================================================
-Write-Host  -ForegroundColor Cyan "Herstart in 20 seconden!"
-Start-Sleep -Seconds 20
-wpeutil reboot
+#endregion
+#=================================================
