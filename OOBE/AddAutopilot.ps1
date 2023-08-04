@@ -1,4 +1,5 @@
-iex (irm functions.osdcloud.com)
-osdcloud-InstallScriptAutopilot
+Set-Executionpolicy RemoteSigned
+Install-Script Get-WindowsAutopilotImportGUI -Force
+Get-WindowsAutopilotImportGUI
 
-Get-WindowsAutoppilotinfo -online
+Restart-Computer
