@@ -80,8 +80,20 @@ if ($WindowsPhase -eq 'WinPE') {
 
     #Start OSDCloud and pass all the parameters except the Language to allow for prompting
     #Start-OSDCloud -OSVersion 'Windows 11' -OSBuild 22H2 -OSEdition Enterprise -OSActivation Volume -OSLanguage nl-nl -SkipAutopilot -SkipODT -Screenshot -Restart -ZTI
-    Start-OSDCloud -OSVersion 'Windows 11' -OSBuild 22H2 -OSEdition Enterprise -OSActivation Volume -OSLanguage nl-nl -SkipODT -Screenshot -Restart -ZTI
+    $OSDModuleResource.OSDCloud.Values.Name = 'Windows 11 22H2 x64'
+    $OSDModuleResource.OSDCloud.Values.ReleaseID = '22H2'
+    $OSDModuleResource.OSDCloud.Values.Edition = 'Enterprise'
+    $OSDModuleResource.OSDCloud.Values.Activation = 'Volume'
+    $OSDModuleResource.OSDCloud.Values.Language = 'nl-nl'
 
+    $OSDModuleResource.StartOSDCloudGUI.ClearDiskConfirm = $false
+    $OSDModuleResource.StartOSDCloudGUI.restartComputer = $true
+    $OSDModuleResource.StartOSDCloudGUI.updateDiskDrivers = $true
+    $OSDModuleResource.StartOSDCloudGUI.updateFirmware = $true
+    $OSDModuleResource.StartOSDCloudGUI.updateSCSIDrivers = $true
+
+    $OSDModuleResource.StartOSDCloudGUI.BrandName = 'AnyLinQ Laptop Install'
+    Start-OSDCloudGUI
 }
 #endregion
 #=================================================
