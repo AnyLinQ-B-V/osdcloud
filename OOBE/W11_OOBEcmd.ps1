@@ -70,7 +70,7 @@ if ($WindowsPhase -eq 'WinPE') {
 
     #Start OSDCloud and pass all the parameters except the Language to allow for prompting
     #Start-OSDCloud -OSVersion 'Windows 11' -OSBuild 22H2 -OSEdition Enterprise -OSActivation Volume -OSLanguage nl-nl -SkipAutopilot -SkipODT -Screenshot -Restart -ZTI
-    Start-OSDCloud -OSName 'Windows 11 22H2 x64' -OSLanguage nl-nl -OSEdition Enterprise -OSLicense Volume -Screenshot -ZTI
+    Start-OSDCloud -OSName 'Windows 11 22H2 x64' -OSLanguage nl-nl -OSEdition Enterprise -OSLicense Volume -Screenshot -ZTI -Restart
 
 }
 #endregion
