@@ -58,16 +58,6 @@ Write-Host -ForegroundColor DarkGray "$ScriptName $ScriptVersion $WindowsPhase"
 #Load OSDCloud Functions
 Invoke-Expression -Command (Invoke-RestMethod -Uri functions.osdcloud.com)
 
-if ($Manufacturer -match "Dell"){
-    $Manufacturer = "Dell"
-    $DellEnterprise = Test-DCUSupport
-}
-
-if ($DellEnterprise -eq $true) {
-    Write-Host -ForegroundColor Green "Dell System Supports Dell Command Update"
-    Invoke-Expression (Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/OSDeploy/OSD/master/cloud/modules/devicesdell.psm1')
-}
-
 #endregion
 #=================================================
 #region WinPE
@@ -80,20 +70,8 @@ if ($WindowsPhase -eq 'WinPE') {
 
     #Start OSDCloud and pass all the parameters except the Language to allow for prompting
     #Start-OSDCloud -OSVersion 'Windows 11' -OSBuild 22H2 -OSEdition Enterprise -OSActivation Volume -OSLanguage nl-nl -SkipAutopilot -SkipODT -Screenshot -Restart -ZTI
-    $OSDModuleResource.OSDCloud.Values.Name = 'Windows 11 22H2 x64'
-    $OSDModuleResource.OSDCloud.Values.ReleaseID = '22H2'
-    $OSDModuleResource.OSDCloud.Values.Edition = 'Enterprise'
-    $OSDModuleResource.OSDCloud.Values.Activation = 'Volume'
-    $OSDModuleResource.OSDCloud.Values.Language = 'nl-nl'
+    Start-OSDCloud -OSName 'Windows 11 22H2 x64' -OSLanguage nl-nl -OSEdition Enterprise -OSLicense Volume -Screenshot -ZTI
 
-    $OSDModuleResource.StartOSDCloudGUI.ClearDiskConfirm = $false
-    $OSDModuleResource.StartOSDCloudGUI.restartComputer = $true
-    $OSDModuleResource.StartOSDCloudGUI.updateDiskDrivers = $true
-    $OSDModuleResource.StartOSDCloudGUI.updateFirmware = $true
-    $OSDModuleResource.StartOSDCloudGUI.updateSCSIDrivers = $true
-
-    $OSDModuleResource.StartOSDCloudGUI.BrandName = 'AnyLinQ Laptop Install'
-    Start-OSDCloudGUI
 }
 #endregion
 #=================================================
@@ -132,7 +110,6 @@ if ($WindowsPhase -eq 'OOBE') {
         Write-Warning 'Unable to determine if device is Autopilot registered'
     }
     osdcloud-RemoveAppx -Basic
-    #osdcloud-Rsat -Basic
     osdcloud-NetFX
     osdcloud-UpdateDrivers
     osdcloud-UpdateWindows
@@ -143,16 +120,6 @@ if ($WindowsPhase -eq 'OOBE') {
         if (Get-Process -Id $AutopilotRegisterProcess.Id -ErrorAction Ignore) {
             Wait-Process -Id $AutopilotRegisterProcess.Id
         }
-    }
-    
-    if ($DellEnterprise -eq $true) {
-        Write-Host -ForegroundColor Green "[+] Installing Dell Command Update"
-        osdcloud-InstallDCU
-        Write-Host -ForegroundColor Green "[+] Running Dell Command Update (Clean Image)"
-        osdcloud-RunDCU -UpdateType CleanImage
-        Write-Host -ForegroundColor Green "[+] Setting Dell Command Update to Auto Update"
-        osdcloud-DCUAutoUpdate
-        osdcloud-StartOOBE -Display -Language -DateTime -Autopilot -KeyVault
     }
     
     $null = Stop-Transcript -ErrorAction Ignore
@@ -180,15 +147,6 @@ if ($WindowsPhase -eq 'Windows') {
     osdcloud-UpdateDefenderStack
     osdcloud-NetFX
 
-    if ($DellEnterprise -eq $true) {
-        Write-Host -ForegroundColor Green "[+] Installing Dell Command Update"
-        osdcloud-InstallDCU
-        Write-Host -ForegroundColor Green "[+] Running Dell Command Update (Clean Image)"
-        osdcloud-RunDCU -UpdateType CleanImage
-        Write-Host -ForegroundColor Green "[+] Setting Dell Command Update to Auto Update"
-        osdcloud-DCUAutoUpdate
-    }
-    
     $null = Stop-Transcript -ErrorAction Ignore
 }
 #endregion
