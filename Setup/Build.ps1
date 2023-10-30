@@ -1,3 +1,6 @@
+https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install#download-the-adk-for-windows-11-version-22h2-updated-september-2023
+
+
 Set-Location C:\osdcloud-scripts\
 Set-ExecutionPolicy RemoteSigned -Force
 
